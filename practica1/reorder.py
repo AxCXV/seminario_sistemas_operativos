@@ -25,7 +25,7 @@ for x in f:
     del content[3:]
     hexa_2_dec(content[1])
     dec_2_hexa(content[2])
-    tostring = ' '.join(map(str,content))
+    tostring = ' : '.join(map(str,content))
     print(tostring)
     out.write(tostring)
 
