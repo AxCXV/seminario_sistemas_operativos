@@ -1,8 +1,6 @@
 from collections import deque
 import pandas as pd
-# import random as rnd
-# import heapq
-# import numpy as np
+
 
 def round_robin(processes, quantum):
     queue = deque(processes)
@@ -42,10 +40,10 @@ def fifo(processes):
     return execution_order
 
 
-#     #ordernar por burst time
-#     #asignar un numero aleatorio a los procesos denominado como prioridad
-#     #usar fifo en caso de empate
-#     pass
+#ordernar por burst time
+#asignar un numero aleatorio a los procesos denominado como prioridad
+#usar fifo en caso de empate
+
 
 # def priority(processes):
 #     processes = sorted(processes, key = lambda process: process["burst_time"])
@@ -65,44 +63,61 @@ def fifo(processes):
 #     # return heapq.heapify(priority_queue)
 #     return processes
 
-def menu(opt):
-    while opt != 0:
-        try:
-            print("Select a process scheduling algorithm: ")
-            print("1. Round Robin")
-            print("2. SJF")
-            print("3. FIFO")
-            print("4. Priority based scheduling")
-            opt = int(input("Please select an option: "))
-        except:
-                print("Please select a valid option ")
-
 
 def main():
-    
-    col_names = ["process", "burst_time", "arrival_time"]
+    col_names = ["process", "burst_time", "arrival_time", "priority", "position"]
     processes = pd.read_csv("practica3\procesos.txt", names=col_names).to_dict('records')
+    while True:
+        print("Select an option:")
+        print("1. Enter new process information")
+        print("2. Run an algorithm")
+        print("3. Exit the program")
+        choice = input("Enter your choice: ")
+        
+        if choice == '1':
+            name = input("Enter process name: ")
+            burst_time = int(input("Enter burst time: "))
+            priority = int(input("Enter priority: "))
+            position = int(input("Enter position (0 = last/ 1 = first): "))
+            process_new = {"process": name, "burst_time": burst_time, "priority": priority, "position": position}
+            if process_new["position"] == 0:
+                processes.append(process_new)
+                print(pd.DataFrame(processes))
+            elif process_new["position"] == 1:
+                processes.insert(0, process_new)
+                print(pd.DataFrame(processes))
+            else:
+                break
+        elif choice == '2':
+            while True:
+                print("Select an algorithm:")
+                print("1. Round Robin")
+                print("2. SJF")
+                print("3. FIFO")
+                print("4. PBS")
+                algo = input("Enter your choice: ")
+                if algo == '1':
+                    round_robin_arrange = round_robin(processes, 3)
+                    print(pd.DataFrame(round_robin_arrange))
+                    break
+                elif algo == '2':
+                    sjf_arrange = sjf(processes)
+                    print(', '.join(map(str, sjf_arrange))) 
+                    break
+                elif algo == '3':
+                    fifo_arrange = fifo(processes)
+                    print(', '.join(map(str, fifo_arrange)))
+                    break
+                #elif algo == '4':
+                    #pass
+                else:
+                    print("Invalid choice. Please enter 1, 2, 3 or 4.")
+        elif choice == '3':
+            print("Exiting the program, Thank you!")
+            break
+        else:
+            print("Invalid choice. Please enter 1, 2 or 3.")
 
-    
-    print("Unorganized processes")
-    print(pd.DataFrame(processes))
-    print("*"*90)
-    
-    
-    
-    round_robin_arrange = round_robin(processes, 3)
-    sjf_arrange = sjf(processes)
-    fifo_arrange = fifo(processes)
-
-    print("Round robin ")
-    print(pd.DataFrame(round_robin_arrange)) 
-    print("*"*90)
-    print("Shortest Job First")
-    print(', '.join(map(str, sjf_arrange))) 
-    print("*"*90)
-    print("First In - First Out")
-    print(', '.join(map(str, fifo_arrange)))
-    # print(priority_based_scheduling(processes))
 
 if __name__ == '__main__':
     main()
