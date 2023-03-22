@@ -35,76 +35,44 @@ def best_fit(mb, p):
 
 
 
-def worst_fit(p, mb):
-    memory = {}
-    for block in mb:
-        memory[block['id']] = [None] * block['size']
-    for process in p:
-        size = process.get('process_size')
-        allocated = False
-        max_size = -1
-        max_block_id = None
-        for block_id, block_memory in memory.items():
-            for i in range(len(block_memory) - size + 1):
-                if all(memory[block_id][i:i+size] is None for i in range(i, i+size)):
-                    if len(block_memory[i:i+size]) > max_size:
-                        max_size = len(block_memory[i:i+size])
-                        max_block_id = block_id
-                        max_index = i
-        if max_block_id is not None:
-            for i in range(max_index, max_index+size):
-                memory[max_block_id][i] = process
-            allocated = True
-        if not allocated:
-            print(f"Process {process.get('id')} cannot be allocated.")
-    for block_id, block_memory in memory.items():
-        for i in range(len(block_memory)):
-            if block_memory[i] is not None:
-                print(f"Memory at block {block_id}, index {i}: {block_memory[i]}")
-
-
-def next_fit(processes, memory_blocks):
-    memory = {}
-    for block in memory_blocks:
-        memory[block['id']] = [None] * block['size']
-    current_block_id = None
-    current_index = 0
+def worst_fit(memory_blocks, processes):
+    memory_blocks = sorted(memory_blocks, key=lambda x: x['size'], reverse=True)
+    allocated_blocks = []
     for process in processes:
-        size = process.get('process_size')
+        worst_block = None
+        for block in memory_blocks:
+            if block['size'] >= process['process_size'] and (worst_block is None or block['size'] > worst_block['size']):
+                worst_block = block
+        if worst_block is not None:
+            worst_block['size'] -= process['process_size']
+            allocated_block = {'name': worst_block['id'], 'allocated': process['process']}
+            allocated_blocks.append(allocated_block)
+    return allocated_blocks
+
+
+def next_fit(memory_blocks, processes):
+    allocated_blocks = []
+    current_block_index = 0
+    for process in processes:
         allocated = False
-        for i in range(len(memory)):
-            block_id = list(memory.keys())[i]
-            block_memory = memory[block_id]
-            if current_block_id is not None and block_id == current_block_id:
-                for j in range(current_index, len(block_memory) - size + 1):
-                    if all(memory[current_block_id][j:j+size] is None for j in range(j, j+size)):
-                        for k in range(j, j+size):
-                            memory[current_block_id][k] = process
-                        allocated = True
-                        current_index = j+size
-                        break
-            else:
-                for j in range(len(block_memory) - size + 1):
-                    if all(memory[block_id][j:j+size] is None for j in range(j, j+size)):
-                        for k in range(j, j+size):
-                            memory[block_id][k] = process
-                        allocated = True
-                        current_block_id = block_id
-                        current_index = j+size
-                        break
-            if allocated:
+        for i in range(len(memory_blocks)):
+            block_index = (current_block_index + i) % len(memory_blocks)
+            block = memory_blocks[block_index]
+            if block['size'] >= process['process_size']:
+                block['size'] -= process['process_size']
+                allocated_block = {'name': block['id'], 'allocated': process['process']}
+                allocated_blocks.append(allocated_block)
+                allocated = True
+                current_block_index = block_index
                 break
         if not allocated:
-            print(f"Process {process.get('id')} cannot be allocated.")
-    for block_id, block_memory in memory.items():
-        for i in range(len(block_memory)):
-            if block_memory[i] is not None:
-                print(f"Memory at block {block_id}, index {i}: {block_memory[i]}")
+            print("Unable to allocate {0} with size {1}".format(process['process'], process['process_size']))
+    return allocated_blocks
 
 
 def main():
     col_names = ["process", "process_size"]
-    processes = pd.read_csv("practica5/archivos.txt", names=col_names).to_dict('records')
+    processes = pd.read_csv("archivos.txt", names=col_names).to_dict('records')
     for process in processes:
         process['process_size'] = int(process['process_size'][:-2])
     print(pd.DataFrame(processes))
@@ -129,9 +97,15 @@ def main():
         elif algo == '2':
             best_fit(memory_blocks, processes)
         elif algo == '3':
-            worst_fit(processes, memory_blocks)
+            allocated_memory = []
+            allocated_memory = worst_fit(memory_blocks, processes)
+            for block in allocated_memory:
+                print("Memory block {0} allocated to process {1}".format(block['name'],block['allocated']))
         elif algo == '4':
-            next_fit(processes, memory_blocks)
+            allocated_memory = []
+            allocated_memory = next_fit(memory_blocks, processes)
+            for block in allocated_memory:
+                print(f"Memory block {0} allocated to process {1}".format(block['name'],block['allocated']))
         elif algo == '5':
             print("Good bye!")
             return False
