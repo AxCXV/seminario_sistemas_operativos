@@ -75,7 +75,6 @@ def main():
     processes = pd.read_csv("archivos.txt", names=col_names).to_dict('records')
     for process in processes:
         process['process_size'] = int(process['process_size'][:-2])
-    print(pd.DataFrame(processes))
     memory_blocks = [{'id': 0, 'size': 1000},
                      {'id': 1, 'size': 400},
                      {'id': 2, 'size': 1800},
@@ -83,6 +82,12 @@ def main():
                      {'id': 4, 'size': 900},
                      {'id': 5, 'size': 1200},
                      {'id': 6, 'size': 1500}]
+    print("List of processes")
+    print(pd.DataFrame(processes))
+    print("="*50)
+    print("Memory")
+    print(pd.DataFrame(memory_blocks))
+    print("="*50)
 
     while True:
         print("Select an algorithm:")
@@ -94,18 +99,22 @@ def main():
         algo = input("Enter your choice: ")
         if algo == '1':
             first_fit(memory_blocks, processes)
+            break
         elif algo == '2':
             best_fit(memory_blocks, processes)
+            break
         elif algo == '3':
             allocated_memory = []
             allocated_memory = worst_fit(memory_blocks, processes)
             for block in allocated_memory:
                 print("Memory block {0} allocated to process {1}".format(block['name'],block['allocated']))
+            break
         elif algo == '4':
-            allocated_memory = []
-            allocated_memory = next_fit(memory_blocks, processes)
-            for block in allocated_memory:
-                print(f"Memory block {0} allocated to process {1}".format(block['name'],block['allocated']))
+            am = []
+            am = next_fit(memory_blocks, processes)
+            for block in am:
+                print("Memory block {0} allocated to process {1}".format(block['name'],block['allocated']))
+            break
         elif algo == '5':
             print("Good bye!")
             return False

@@ -66,7 +66,7 @@ def fifo(processes):
 
 def main():
     col_names = ["process", "burst_time", "arrival_time", "priority", "position"]
-    processes = pd.read_csv("practica3\procesos.txt", names=col_names).to_dict('records')
+    processes = pd.read_csv("procesos.txt", names=col_names).to_dict('records')
     while True:
         print("Select an option:")
         print("1. Enter new process information")

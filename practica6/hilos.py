@@ -11,7 +11,7 @@ class ImageMoveThread(threading.Thread):
         self.delta_y = delta_y
         self.sleep_time = sleep_time
         self.stop_event = threading.Event()
-    
+
     def run(self):
         while not self.stop_event.is_set():
             x, y = self.canvas.coords(self.image_id)
@@ -30,8 +30,8 @@ class ImageMoveApp:
         self.master.wm_attributes('-fullscreen', True)
         self.canvas = tk.Canvas(master)
         self.canvas.pack(fill=tk.BOTH, expand=1)
-        self.image1 = Image.open("practica6\pato1.jpg")
-        self.image2 = Image.open("practica6\si.jpg")
+        self.image1 = Image.open("pato1.jpg")
+        self.image2 = Image.open("si.jpg")
         self.photo1 = ImageTk.PhotoImage(self.image1)
         self.photo2 = ImageTk.PhotoImage(self.image2)
         self.image1_id = self.canvas.create_image(0, 0, image=self.photo1, anchor="nw")
